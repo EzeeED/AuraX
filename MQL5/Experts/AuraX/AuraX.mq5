@@ -19,11 +19,14 @@
 //|      avisos al llegar a Av1 / zonas más lejanas.                 |
 //|                                                                  |
 //| COMPILAR: solo este archivo (F7). No embebe ningún indicador.    |
+//| El logo (MQL5\Images\AuraX\aurax.ico) se embebe al compilar.     |
 //|                                                                  |
 //| Prerrequisito MT5: agregar https://delorrio.com en               |
 //| Herramientas → Opciones → Asesores Expertos → URLs Web.          |
 //+------------------------------------------------------------------+
 #property copyright   "Delorrio Capital"
+#property link        "https://delorrio.com"
+#property icon        "\\Images\\AuraX\\aurax.ico"   // logo de AuraX (Navegador y ventana de propiedades)
 #property version     "1.00"
 #property description "AuraX — Zonas Áureas: último impulso + Fibo de zonas, scanner y trading (licenciado)"
 

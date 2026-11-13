@@ -12,4 +12,5 @@
 - Regla 5: en M15 o más, después de pagar en Av1/Av2 se marca el siguiente Fibo una sola vez.
 - Pain = solo ventas, Gain = solo compras.
 - Panel en azul y negro; sin campo TP%; SL% pasa a llamarse FRAC%.
+- Logo de AuraX como ícono de la EA (`Images/AuraX/aurax.ico`, embebido al compilar).
 - Scanner de Observación del Mercado (M5 a D1) con avisos (tarjeta, sonido, push).
