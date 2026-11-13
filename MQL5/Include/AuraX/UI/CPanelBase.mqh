@@ -51,6 +51,8 @@
 // Un solo rol, un solo color en todos los productos (canon docs/ux-principles.md §5).
 #define EPNL_PRIMARY_BG   EPNL_ACCENT
 #define EPNL_ACCENT_H     2                    // grosor px de la línea roja superior
+#define EPNL_LOGO_SZ      22                   // AuraX: lado en px del logo de la barra de título
+#define EPNL_LOGO_PAD     4                    // AuraX: margen izquierdo del logo
 
 //-- ZORDER jerárquico ─────────────────────────────────────────────
 // BG(9000) < LABEL(9001) < BORDER(9002) < BTN_BG(10000) < BTN_TEXT(10002)
@@ -79,6 +81,7 @@ protected:
    string m_pfx;    // prefix único por instancia (incluye chartId — GOT-017)
    string m_title;  // texto del título (guardado para restaurar tras close confirm)
    string m_brand[3]; // marca en 3 partes (la del medio en rojo) — vacía = título plano
+   string m_logo;     // AuraX: recurso BMP del logo en la barra de título ("" = sin logo)
 
    bool   m_dragging, m_collapsed;
    int    m_dragOffX, m_dragOffY;
@@ -219,6 +222,11 @@ public:
    {
       m_brand[0] = a; m_brand[1] = b; m_brand[2] = c;
    }
+
+   //| AuraX: logo a la izquierda de la marca, en la barra de título.
+   //| res = recurso embebido en el EA, ej. "::Images\\AuraX\\aurax_logo22.bmp".
+   //| Llamar ANTES de Init() (igual que SetBrand).
+   void SetLogo(const string res) { m_logo = res; }
 };
 
 //+------------------------------------------------------------------+
@@ -476,7 +484,8 @@ void CPanelBase::_ShiftPanel(int dx, int dy)
       string n = ObjectName(m_chartId, i, 0, -1);
       if(StringFind(n, m_pfx) != 0) continue;
       ENUM_OBJECT t = (ENUM_OBJECT)ObjectGetInteger(m_chartId, n, OBJPROP_TYPE);
-      if(t != OBJ_LABEL && t != OBJ_RECTANGLE_LABEL && t != OBJ_EDIT && t != OBJ_BUTTON)
+      if(t != OBJ_LABEL && t != OBJ_RECTANGLE_LABEL && t != OBJ_EDIT && t != OBJ_BUTTON
+         && t != OBJ_BITMAP_LABEL)   // AuraX: el logo del título también se arrastra
          continue;   // solo objetos posicionados en píxeles
       ObjectSetInteger(m_chartId, n, OBJPROP_XDISTANCE,
                        ObjectGetInteger(m_chartId, n, OBJPROP_XDISTANCE) + dx);
@@ -639,7 +648,17 @@ string CPanelBase::_DisplayTitle(const string txt) const
 //+------------------------------------------------------------------+
 void CPanelBase::_DrawBrand()
 {
-   if(!_HasBrand()) return;
+   if(StringLen(m_logo) > 0)
+   {
+      string ln = m_pfx + "LOGO";
+      if(ObjectFind(m_chartId, ln) < 0) ObjectCreate(m_chartId, ln, OBJ_BITMAP_LABEL, 0, 0, 0);
+      ObjectSetString (m_chartId, ln, OBJPROP_BMPFILE, 0, m_logo);
+      ObjectSetInteger(m_chartId, ln, OBJPROP_CORNER,     CORNER_LEFT_UPPER);
+      ObjectSetInteger(m_chartId, ln, OBJPROP_ANCHOR,     ANCHOR_LEFT_UPPER);
+      ObjectSetInteger(m_chartId, ln, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(m_chartId, ln, OBJPROP_ZORDER,     ESCAN_Z_BTN_TEXT);
+   }
+   if(!_HasBrand()) { _MoveTitle(); return; }
    const color clr[3] = {ESCAN_BRAND_FG, EPNL_ACCENT, ESCAN_BRAND_FG};
    for(int i = 0; i < 3; i++)
    {
@@ -663,8 +682,15 @@ void CPanelBase::_DrawBrand()
 void CPanelBase::_MoveTitle()
 {
    _SetObjPos(m_pfx + "TITLE", m_x, m_y);
+   bool hasLogo = StringLen(m_logo) > 0;
+   if(hasLogo)
+   {
+      ObjectSetInteger(m_chartId, m_pfx + "LOGO", OBJPROP_XDISTANCE, m_x + EPNL_LOGO_PAD);
+      ObjectSetInteger(m_chartId, m_pfx + "LOGO", OBJPROP_YDISTANCE, m_y + (ESCAN_TITLE_H - EPNL_LOGO_SZ) / 2);
+   }
    if(!_HasBrand()) return;
-   const int padX = 8;   // margen izquierdo de la marca
+   // margen izquierdo de la marca (con logo: después del logo)
+   const int padX = hasLogo ? EPNL_LOGO_PAD + EPNL_LOGO_SZ + 5 : 8;
    const int gap  = 5;   // separación marca → texto
    int x  = m_x + padX;
    int yc = m_y + ESCAN_TITLE_H / 2;

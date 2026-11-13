@@ -19,7 +19,8 @@
 //|      avisos al llegar a Av1 / zonas más lejanas.                 |
 //|                                                                  |
 //| COMPILAR: solo este archivo (F7). No embebe ningún indicador.    |
-//| El logo (MQL5\Images\AuraX\aurax.ico) se embebe al compilar.     |
+//| El logo (MQL5\Images\AuraX: aurax.ico y aurax_logo22.bmp) se     |
+//| embebe al compilar.                                              |
 //|                                                                  |
 //| Prerrequisito MT5: agregar https://delorrio.com en               |
 //| Herramientas → Opciones → Asesores Expertos → URLs Web.          |
@@ -40,6 +41,10 @@
 #include <AuraX/Strategy/CAuraFibo.mqh>
 #include <AuraX/Strategy/CAuraRenderer.mqh>
 #include <AuraX/Scanner/CAuraScanner.mqh>
+
+// Logo chico en la barra de título de los paneles (BMP embebido en el .ex5)
+#resource "\\Images\\AuraX\\aurax_logo22.bmp"
+#define AURX_LOGO_RES "::Images\\AuraX\\aurax_logo22.bmp"
 
 #define AURX_VERSION  "1.00"
 #define AURX_TITLE    ("AuraX v" + AURX_VERSION + " · delorrio.com")
@@ -527,6 +532,7 @@ void OnTimer()
    {
       g_panel.SetExcludedTFs(InpExcludedTFs);    // ANTES de Init()
       g_panel.SetBrand("AURA", "X", " ");          // marca del título — ANTES de Init()
+      g_panel.SetLogo(AURX_LOGO_RES);              // logo — ANTES de Init()
       if(g_panel.Init(ChartID(), InpPanelX, InpPanelY, InpPrefix, AURX_TITLE,
                       0.0, InpDefaultFrac, InpLotMin, InpLotMax,
                       InpDefaultMult, InpDefaultET, InpDefaultRLC))
@@ -543,6 +549,7 @@ void OnTimer()
       if(InpScanEnabled && !g_scanReady)
       {
          g_scanPanel.SetBrand("AURA", "X", " ");
+         g_scanPanel.SetLogo(AURX_LOGO_RES);
          g_scanPanel.Init(ChartID(), InpPanelX + TRADE_W_DEFAULT + 10, InpPanelY, InpPrefix, "Scanner");
          g_scan.Configure(InpBars, InpMaxLeg, InpScanExcludedTFs, InpScanExcludedSyms,
                           InpGainPrefix, InpPainPrefix);
